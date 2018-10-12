@@ -253,7 +253,7 @@
         "compile": "tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "node ./node_modules/vscode/bin/test",
-        "cover": "npm run vscode:prepublish && npm run cover:write-empty-coverage && npm run cover:remap-empty-coverage && npm run cover:instrument && npm run test",
+        "cover": "npm run vscode:prepublish && npm run cover:write-empty-coverage && npm run cover:remap-empty-coverage && npm run cover:instrument && { npm run test; nyc report  --text-summary ;} ",
         "cover:instrument": "{ cd out/src && nyc instrument . . ; } ; cd ../..",
         "cover:write-empty-coverage": "{ cd out/src && nyc --all --reporter=none --include out/src echo; }; cd ../..",
         "cover:remap-empty-coverage": "{ cd out/src && run-for-every-file --src \"../../.nyc_output/*.json\" --run \"remap-istanbul -i {{src-file}} -o {{src-file}}\" ; } ; cd ../..",
