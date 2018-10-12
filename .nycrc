@@ -1,0 +1,11 @@
+{
+    "reporter": [
+        "html",
+	"text-summary"
+    ],
+    "report-dir": "out/coverage/",
+    "temp-directory": "out/.nyc_output/",
+    "exclude": [
+	"out/test"
+    ]
+}
