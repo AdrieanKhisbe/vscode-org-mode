@@ -3,6 +3,9 @@
         ".ts",
         ".tsx"
     ],
+    "require": [
+        "ts-node/register"
+    ],
     "exclude": [
         "**/*.d.ts",
         "test/**/*"
