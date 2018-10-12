@@ -21,7 +21,7 @@ install:
   - npm run vscode:prepublish
 
 script:
-  - npm test
+  - npm run cover
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - npm run publish-coverage
