@@ -60,6 +60,107 @@ export function activate(context: vscode.ExtensionContext) {
     const provider = new OrgFoldingAndOutlineProvider();
     vscode.languages.registerFoldingRangeProvider('org', provider);
     vscode.languages.registerDocumentSymbolProvider('org', provider);
+
+
+
+    /*   DECORATOR PROTOTYPE   */
+    // from vscode extension example and prettify extension
+
+    // §TODO : make a document handler for org documents. cf prettify
+	console.log('decorator sample is activated');
+
+	let timeout: NodeJS.Timer | undefined = undefined;
+
+	const headersDecorationType = vscode.window.createTextEditorDecorationType({
+		borderWidth: '1px',
+		borderStyle: 'solid',
+		overviewRulerColor: 'blue',
+		overviewRulerLane: vscode.OverviewRulerLane.Right,
+		light: {
+			borderColor: 'darkblue'
+		},
+		dark: {
+			borderColor: 'lightblue'
+		}
+	});
+
+	let activeEditor = vscode.window.activeTextEditor;
+
+	function updateDecorations() {
+		if (!activeEditor) {
+			return;
+		}
+		const regEx = /(?=\n|^)(\*+) /gm;
+		const text = activeEditor.document.getText();
+		const headers: vscode.DecorationOptions[] = [];
+        let match;
+        const showAttachmentStyling = '!important; font-size: 0.1pt !important; visibility: hidden' //'; letter-spacing: normal; visibility: visible';
+        const XXX = vscode.window.createTextEditorDecorationType({
+            // make multiple for the 6 level heder
+            after:{
+                textDecoration: 'none; letter-spacing: normal; visibility: visible',
+                contentText: 'XX' 
+            },
+            rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed
+             
+         })
+         const DECO = {
+            uglyDecoration: vscode.window.createTextEditorDecorationType({
+              letterSpacing: "-0.55em; font-size: 0.1em; visibility: hidden",
+              rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
+            }),
+            revealedUglyDecoration: vscode.window.createTextEditorDecorationType({
+              letterSpacing: "normal !important; font-size: inherit !important; visibility: visible !important",
+              rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
+              after: {
+                // letterSpacing: '-0.55em; font-size: 0.1pt; visibility: hidden',
+                textDecoration: 'none !important; font-size: 0.1pt !important; visibility: hidden',
+              }
+            })
+            // SEE REVEAL SELECTION FOR EDITS: https://github.com/siegebell/vsc-prettify-symbols-mode/blob/8ead17a83ec24edd2700d23075c0680cc4fa457c/src/PrettyModel.ts#L525
+        }
+		while (match = regEx.exec(text)) {
+			const startPos = activeEditor.document.positionAt(match.index);
+            const endPos = activeEditor.document.positionAt(match.index + match[1].length);
+            const headerLevel = match[1].length;
+           
+			const decoration : vscode.DecorationOptions= {
+                 range: new vscode.Range(startPos, endPos), 
+                 hoverMessage: `Header level ${headerLevel}`
+                };
+            headers.push(decoration)
+		}
+		activeEditor.setDecorations(XXX, headers);
+		activeEditor.setDecorations(DECO.uglyDecoration, headers);
+		////activeEditor.setDecorations(DECO.revealedUglyDecoration, headers);
+	}
+
+	function triggerUpdateDecorations() {
+		if (timeout) {
+			clearTimeout(timeout);
+			timeout = undefined;
+		}
+		timeout = setTimeout(updateDecorations, 500);
+	}
+
+	if (activeEditor) {
+		triggerUpdateDecorations();
+	}
+
+	vscode.window.onDidChangeActiveTextEditor(editor => {
+		activeEditor = editor;
+		if (editor) {
+			triggerUpdateDecorations();
+		}
+	}, null, context.subscriptions);
+
+	vscode.workspace.onDidChangeTextDocument(event => {
+		if (activeEditor && event.document === activeEditor.document) {
+			triggerUpdateDecorations();
+		}
+	}, null, context.subscriptions);
+
+
 }
 
 export function deactivate() {
